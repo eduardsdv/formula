@@ -99,7 +99,8 @@ public class Main {
         // Vergleiche text1 und text2 und wenn sie gleich sind,
         // berechne die Formel f1 ansonsten die Formel f2 und multipliziere das Ergebnis mit 5
         Expression expression = new Parser().parse("=5 * when(text1=text2;=f1;=f2)");
-        System.out.println(evaluator.evaluate(expression));
+        evaluator.evaluate(expression);
+        System.out.println((Object) evaluator.evaluate(expression));
 
         // Performanz-Check
         long s = System.currentTimeMillis();
@@ -110,16 +111,16 @@ public class Main {
         System.out.println(System.currentTimeMillis() - s + " ms for " + count + " evaluations!");
 
         // Texte vergleichen
-        System.out.println(evaluator.evaluate(new Parser().parse("=text1<=text2")));
+        System.out.println((Object)evaluator.evaluate(new Parser().parse("=text1<=text2")));
 
         // Summe der Werte in einem Bereich
-        System.out.println(evaluator.evaluate(new Parser().parse("=sum(r1:r4)")));
+        System.out.println((Object)evaluator.evaluate(new Parser().parse("=sum(r1:r4)")));
 
         // ... und noch weitere Beispiele
-        System.out.println(evaluator.evaluate(new Parser().parse("=2*2^2")));
-        System.out.println(evaluator.evaluate(new Parser().parse("=2^2*2")));
-        System.out.println(evaluator.evaluate(new Parser().parse("=1+1<3")));
-        System.out.println(evaluator.evaluate(new Parser().parse("=3>1+1")));
-        System.out.println(evaluator.evaluate(new Parser().parse("=16^-(1/2)")));
+        System.out.println((Object)evaluator.evaluate(new Parser().parse("=2*2^2")));
+        System.out.println((Object)evaluator.evaluate(new Parser().parse("=2^2*2")));
+        System.out.println((Object)evaluator.evaluate(new Parser().parse("=1+1<3")));
+        System.out.println((Object)evaluator.evaluate(new Parser().parse("=3>1+1")));
+        System.out.println((Object)evaluator.evaluate(new Parser().parse("=16^-(1/2)")));
     }
 }

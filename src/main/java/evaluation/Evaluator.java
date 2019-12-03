@@ -36,6 +36,9 @@ public class Evaluator {
      */
     private Map<String, Expression> expressions;
 
+    /**
+     * The Show evaluation debug info.
+     */
     private boolean showEvaluationDebugInfo = false;
 
     /**
@@ -50,6 +53,33 @@ public class Evaluator {
      * The Last.
      */
     private boolean last;
+
+    /**
+     * Instantiates a new Evaluator.
+     */
+    public Evaluator() {
+    }
+
+    /**
+     * Instantiates a new Evaluator.
+     *
+     * @param functions the functions
+     */
+    public Evaluator(Map<String, IFunction<? extends Object, ? extends Object>> functions) {
+        this.functions = functions;
+    }
+
+    /**
+     * Instantiates a new Evaluator.
+     *
+     * @param functions the functions
+     * @param values the values
+     */
+    public Evaluator(Map<String, IFunction<? extends Object, ? extends Object>> functions,
+            Map<String, Object> values) {
+        this.functions = functions;
+        this.values = values;
+    }
 
     /**
      * Instantiates a new Evaluator.
@@ -69,10 +99,11 @@ public class Evaluator {
     /**
      * Evaluate object.
      *
-     * @param e the e
-     * @return the object
+     * @param <T> the type of the result object
+     * @param e the expression to evaluate
+     * @return the result
      */
-    public Object evaluate(Expression e) {
+    public <T> T evaluate(Expression e) {
         Object result = null;
         String x = null;
 
@@ -113,7 +144,7 @@ public class Evaluator {
             } else if (e instanceof BoolExpression) {
                 result = evaluate((BoolExpression) e);
             }
-            return result;
+            return (T) result;
 
         } finally {
 
