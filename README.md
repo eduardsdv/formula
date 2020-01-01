@@ -11,6 +11,7 @@ To evaluate the expression, instantiate an `Evaluator` and call `evaluate(..)`.
 Evaluator evaluator = new Evaluator();
 int result = evaluator.evaluate(expression);
 ```
+Here is a bit more complicated example with user defined variables, functions und other formulas wich are used inside target one.
 ```java
 // Define variables
 Map<String, Object> variables = new HashMap<>();
@@ -40,18 +41,18 @@ double result = evaluator.evaluate(expression);
 The formula language supports a number of built-in mathematical and comparison operators and user defined variables, 
 functions and references to other formulas.
 
-* The formulas should be started with `=` character. Although it is optional.
+* A formula should be started with `=` character. Although it is optional.
 
 * Mathematical operators: `+`, `-`, `*`, `/`, `^`
 
 * Comparison operators: `<`, `<=`, `=`, `>=`, `>` and `<>`
 
-* The variables are strings which consist letter and number characters and must begin with a letter.
+* A variable is a string which consist letter and number characters and must begin with a letter.
 
-* The functions are string (name of the function) with subsequent `(` and `)` characters. The functions may have parametrs. 
+* A function is a string (name of the function) with subsequent `(` and `)` characters. The function may have parametrs. 
 They must be placed between `(` and `)`. The multiple parameters must be delimited by the `;` character.
 
-* The formula references begin with `=` character folowing by a string (name of the formula).
+* A formula reference begins with `=` character folowing by a string (name of the formula).
 
 # License
 Apache License Version 2.0 (see https://raw.githubusercontent.com/eduardsdv/formula/master/LICENSE file for the full text)
