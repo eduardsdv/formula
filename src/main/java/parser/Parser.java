@@ -11,9 +11,9 @@ import java.util.List;
  * expression = comparison
  * comparison = addition {("<" | "<=" | "=" | "<>" | "=>" | ">") addition}
  * addition = multiplication {("+" | "-") multiplication}
- * multiplication = negation {("*" | "/") negation}
- * negation = ["-"] power
- * power = atom ["^" negation]
+ * multiplication = power {("*" | "/") power}
+ * power = negation ["^" negation]
+ * negation = ["-"] atom
  * atom = variable | number | function | formula | "(" expression ")"
  * variable = identifier
  * function = identifier "(" {expression ";"} ")"
@@ -48,6 +48,7 @@ public class Parser {
      * @return the expression
      */
     public Expression parse(String str) {
+        this.lastExpression = null;
         this.str = str;
         pos = 0;
 
@@ -78,7 +79,6 @@ public class Parser {
      * @return the expression
      */
     protected Expression expression() {
-        lastExpression = null;
         while (next() != EOF) {
             Expression e = lastExpression;
             boolExpression();
@@ -154,21 +154,37 @@ public class Parser {
      * Mul div expression.
      */
     protected void mulDivExpression() {
-        minusExpression();
+        powerExpression();
 
         Expression left = lastExpression;
         if (next() == '*') {
             // consume '*'
             consume();
             consumeBlanks();
-            minusExpression();
+            powerExpression();
             lastExpression = new MathExpression(left, MathExpression.Operator.MUL, lastExpression);
         } else if (next() == '/') {
             // consume '/'
             consume();
             consumeBlanks();
-            minusExpression();
+            powerExpression();
             lastExpression = new MathExpression(left, MathExpression.Operator.DIV, lastExpression);
+        }
+    }
+
+    /**
+     * Power expression.
+     */
+    protected void powerExpression() {
+        minusExpression();
+
+        if (next() == '^') {
+            Expression left = lastExpression;
+            // consume '^'
+            consume();
+            consumeBlanks();
+            expression();
+            lastExpression = new MathExpression(left, MathExpression.Operator.POW, lastExpression);
         }
     }
 
@@ -176,33 +192,19 @@ public class Parser {
      * Minus expression.
      */
     protected void minusExpression() {
-        if (next() == '-') {
-            consume();
-            consumeBlanks();
-            powerExpression();
-            lastExpression = new MinusExpression(lastExpression);
-            return;
-        } else if (next() == '+') {
-            consume();
-            consumeBlanks();
+        if (!(lastExpression instanceof MathExpression)) {
+            if (next() == '-') {
+                consume();
+                consumeBlanks();
+                minusExpression();
+                lastExpression = new MinusExpression(lastExpression);
+                return;
+            } else if (next() == '+') {
+                consume();
+                consumeBlanks();
+            }
         }
-        powerExpression();
-    }
-
-    /**
-     * Power expression.
-     */
-    protected void powerExpression() {
         valueExpression();
-
-        if (next() == '^') {
-            Expression left = lastExpression;
-            // consume '^'
-            consume();
-            consumeBlanks();
-            minusExpression();
-            lastExpression = new MathExpression(left, MathExpression.Operator.POW, lastExpression);
-        }
     }
 
     /**
@@ -303,12 +305,12 @@ public class Parser {
      */
     protected void bracketExpression() {
         if (next() == '(') {
-            // consume ')'
+            // consume '('
             consume();
             consumeBlanks();
             expression();
             consumeBlanks();
-            // consume '('
+            // consume ')'
             consume();
             consumeBlanks();
             lastExpression = new BracketExpression(lastExpression);
