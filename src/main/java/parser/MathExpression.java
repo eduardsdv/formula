@@ -71,36 +71,48 @@ public class MathExpression extends Expression {
         /**
          * Add operator.
          */
-        ADD('+'),
+        ADD('+', 1),
         /**
          * Sub operator.
          */
-        SUB('-'),
+        SUB('-', 1),
         /**
          * Mul operator.
          */
-        MUL('*'),
+        MUL('*', 2),
         /**
          * Div operator.
          */
-        DIV('/'),
+        DIV('/', 2),
         /**
          * Pow operator.
          */
-        POW('^');
+        POW('^', 3);
 
         /**
          * The X.
          */
         private char x;
 
+        private int precedence;
+
         /**
          * Instantiates a new Operator.
          *
          * @param x the x
          */
-        Operator(char x) {
+        Operator(char x, int precedence) {
             this.x = x;
+            this.precedence = precedence;
+        }
+
+        /**
+         * Gets the precedence.
+         *
+         * @return precedence value
+         */
+        public int getPrecedence() {
+            return precedence;
         }
 
         @Override
