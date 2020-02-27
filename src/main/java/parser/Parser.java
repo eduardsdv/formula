@@ -61,6 +61,8 @@ public class Parser {
 
         expression();
 
+        lastExpression = processPrecedence(lastExpression);
+
         return lastExpression;
     }
 
@@ -139,13 +141,13 @@ public class Parser {
             // consume '+'
             consume();
             consumeBlanks();
-            mulDivExpression();
+            plusMinusExpression();
             lastExpression = new MathExpression(left, MathExpression.Operator.ADD, lastExpression);
         } else if (next() == '-') {
             // consume '-'
             consume();
             consumeBlanks();
-            mulDivExpression();
+            plusMinusExpression();
             lastExpression = new MathExpression(left, MathExpression.Operator.SUB, lastExpression);
         }
     }
@@ -161,13 +163,13 @@ public class Parser {
             // consume '*'
             consume();
             consumeBlanks();
-            powerExpression();
+            mulDivExpression();
             lastExpression = new MathExpression(left, MathExpression.Operator.MUL, lastExpression);
         } else if (next() == '/') {
             // consume '/'
             consume();
             consumeBlanks();
-            powerExpression();
+            mulDivExpression();
             lastExpression = new MathExpression(left, MathExpression.Operator.DIV, lastExpression);
         }
     }
@@ -403,6 +405,49 @@ public class Parser {
         while (Character.isSpaceChar(next())) {
             pos++;
         }
+    }
+
+    protected Expression processPrecedence(Expression e) {
+        if (e instanceof MathExpression) {
+            return processPrecedence((MathExpression) e);
+        } else if (e instanceof BracketExpression) {
+            return new BracketExpression(processPrecedence(((BracketExpression) e).getExpression()));
+        } else if(e instanceof MinusExpression) {
+            return new MinusExpression(processPrecedence(((MinusExpression) e).getExpression()));
+        } else if(e instanceof BoolExpression) {
+            BoolExpression b = (BoolExpression)e;
+            return new BoolExpression(processPrecedence(b.getLeft()), b.getOperator(), processPrecedence(b.getRight()));
+        } else if(e instanceof FunctionExpression) {
+            FunctionExpression f = (FunctionExpression)e;
+            List<Expression> params = new ArrayList<>();
+            for (Expression param : f.getParams()) {
+                params.add(processPrecedence(param));
+            }
+            return new FunctionExpression(f.getName(), params);
+        } else {
+            return e;
+        }
+    }
+
+    protected MathExpression processPrecedence(MathExpression e) {
+        // 1 - 2 - 3 = -4
+        // The parser produces this expression tree:
+        //     /\  which is equal to 1 - (2 - 3) = 0
+        //    1 /\
+        //     2  3
+        // If the precedence of the operators on the right side greater or equal to the precedence of the left side,
+        // this method transforms it to:
+        //      /\    which is equal to (1 - 2) - 3 = -4
+        //     /\ 3
+        //    1  2
+        if (e.getRight() instanceof MathExpression) {
+            MathExpression right = (MathExpression) e.getRight();
+            if (right.getOperator().getPrecedence() <= e.getOperator().getPrecedence()) {
+                MathExpression tmp = new MathExpression(processPrecedence(e.getLeft()), e.getOperator(), right.getLeft());
+                return processPrecedence(new MathExpression(tmp, right.getOperator(), processPrecedence(right.getRight())));
+            }
+        }
+        return new MathExpression(processPrecedence(e.getLeft()), e.getOperator(), processPrecedence(e.getRight()));
     }
 
     /**
